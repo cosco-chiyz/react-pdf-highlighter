@@ -1,63 +1,25 @@
 {
-  "name": "react-pdf-highlighter",
-  "version": "2.2.0",
-  "description": "Set of React components for PDF annotation",
-  "main": "lib/index.js",
+  "private": true,
+  "name": "react-pdf-highlighter-monorepo",
   "scripts": {
-    "build": "nwb build-react-component",
-    "copy-flow": "flow-copy-source src lib",
-    "copy-styles": "cp -r src/style lib",
-    "copy-files": "npm run copy-flow && npm run copy-styles",
-    "clean": "nwb clean-module && npm clean-demo",
-    "start": "nwb serve-react-demo",
-    "test": "npm run flow",
-    "flow": "flow",
-    "precommit": "npm run flow",
-    "deploy": "npm run build && gh-pages --dist ./demo/dist --branch gh-pages",
-    "prepublishOnly": "npm run build && npm run copy-files",
-    "prettier": "prettier --write 'src/**/*.js' 'demo/src/**/*.js'"
-  },
-  "dependencies": {
-    "lodash": "^4.17.10",
-    "pdfjs-dist": "2.0.489",
-    "react-pointable": "^1.1.1",
-    "react-rnd": "^7.1.5"
-  },
-  "peerDependencies": {
-    "react": ">=0.14",
-    "react-dom": ">=0.14"
+    "postinstall": "npm run bootstrap",
+    "bootstrap": "lerna bootstrap",
+    "start": "concurrently --kill-others 'npm run start:example' 'npm run start:react-pdf-highlighter'",
+    "start:example": "wait-on ./packages/react-pdf-highlighter/build && lerna run start --scope=example",
+    "start:react-pdf-highlighter": "lerna run start --scope=react-pdf-highlighter",
+    "test": "npm run flow && lerna run test",
+    "build": "lerna run build",
+    "clean": "lerna clean && lerna run clean",
+    "flow": "flow check",
+    "format": "prettier --write 'packages/**/*.js'",
+    "format:check": "prettier --check 'packages/**/*.js'"
   },
   "devDependencies": {
-    "flow-bin": "0.73.0",
-    "flow-copy-source": "^1.1.0",
+    "concurrently": "^5.0.2",
+    "flow-bin": "^0.73.0",
     "gh-pages": "0.11.0",
-    "husky": "0.11.9",
-    "nwb": "0.21.0",
-    "prettier": "^1.8.2",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "url-search-params": "0.6.1"
-  },
-  "author": "Artem Tyurin <artem.tyurin@gmail.com>",
-  "license": "MIT",
-  "keywords": [
-    "pdf",
-    "highlight",
-    "annotator",
-    "react-component"
-  ],
-  "files": [
-    "lib"
-  ],
-  "directories": {
-    "lib": "lib"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/agentcooper/react-pdf-highlighter.git"
-  },
-  "bugs": {
-    "url": "https://github.com/agentcooper/react-pdf-highlighter/issues"
-  },
-  "homepage": "https://github.com/agentcooper/react-pdf-highlighter#readme"
+    "lerna": "^3.20.2",
+    "prettier": "^1.19.1",
+    "wait-on": "^4.0.0"
+  }
 }

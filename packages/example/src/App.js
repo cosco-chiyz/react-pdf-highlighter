@@ -11,14 +11,17 @@ import {
   Highlight,
   Popup,
   AreaHighlight
-} from "../../src";
+} from "react-pdf-highlighter";
 
 import testHighlights from "./test-highlights";
 
 import Spinner from "./Spinner";
 import Sidebar from "./Sidebar";
 
-import type { T_Highlight, T_NewHighlight } from "../../src/types";
+import type {
+  T_Highlight,
+  T_NewHighlight
+} from "react-pdf-highlighter/src/types";
 
 import "./style/App.css";
 
@@ -32,10 +35,11 @@ type State = {
 
 const getNextId = () => String(Math.random()).slice(2);
 
-const parseIdFromHash = () => location.hash.slice("#highlight-".length);
+const parseIdFromHash = () =>
+  document.location.hash.slice("#highlight-".length);
 
 const resetHash = () => {
-  location.hash = "";
+  document.location.hash = "";
 };
 
 const HighlightPopup = ({ comment }) =>
@@ -47,7 +51,7 @@ const HighlightPopup = ({ comment }) =>
 
 const DEFAULT_URL = "https://arxiv.org/pdf/1708.08021.pdf";
 
-const searchParams = new URLSearchParams(location.search);
+const searchParams = new URLSearchParams(document.location.search);
 const url = searchParams.get("url") || DEFAULT_URL;
 
 class App extends Component<Props, State> {

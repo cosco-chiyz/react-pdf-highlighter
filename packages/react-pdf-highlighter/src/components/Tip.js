@@ -17,14 +17,11 @@ type Props = {
 };
 
 class Tip extends Component<Props, State> {
-  state = {
+  state: State = {
     compact: true,
     text: "",
     emoji: ""
   };
-
-  state: State;
-  props: Props;
 
   // for TipContainer
   componentDidUpdate(nextProps: Props, nextState: State) {

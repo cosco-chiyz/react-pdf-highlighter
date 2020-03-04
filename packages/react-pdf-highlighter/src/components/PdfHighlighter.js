@@ -3,7 +3,11 @@ import React, { PureComponent } from "react";
 import ReactDom from "react-dom";
 import Pointable from "react-pointable";
 import _ from "lodash/fp";
-import { PDFViewer, PDFLinkService } from "pdfjs-dist/web/pdf_viewer";
+import {
+  PDFViewer,
+  PDFLinkService,
+  getGlobalEventBus
+} from "pdfjs-dist/web/pdf_viewer";
 
 import "pdfjs-dist/web/pdf_viewer.css";
 import "../style/pdf_viewer.css";
@@ -84,28 +88,25 @@ class PdfHighlighter<T_HT: T_Highlight> extends PureComponent<
   Props<T_HT>,
   State<T_HT>
 > {
-  state = {
+  state: State<T_HT> = {
     ghostHighlight: null,
     isCollapsed: true,
     range: null,
-    scrolledToHighlightId: EMPTY_ID
+    scrolledToHighlightId: EMPTY_ID,
+    isAreaSelectionInProgress: false,
+    tip: null
   };
 
-  state: State<T_HT>;
-  props: Props<T_HT>;
-
-  viewer = null;
   viewer: T_PDFJS_Viewer;
   linkService: T_PDFJS_LinkService;
 
-  containerNode = null;
-  containerNode: ?HTMLDivElement;
+  containerNode: ?HTMLDivElement = null;
 
   debouncedAfterSelection: () => void;
 
   componentDidUpdate(prevProps: Props<T_HT>) {
     if (prevProps.highlights !== this.props.highlights) {
-      this.renderHighlights(this.props)
+      this.renderHighlights(this.props);
     }
   }
 
@@ -132,27 +133,17 @@ class PdfHighlighter<T_HT: T_Highlight> extends PureComponent<
     document.addEventListener("selectionchange", this.onSelectionChange);
     document.addEventListener("keydown", this.handleKeyDown);
 
-    this.containerNode &&
-      this.containerNode.addEventListener("pagesinit", () => {
-        this.onDocumentReady();
-      });
+    document.addEventListener("pagesinit", () => {
+      this.onDocumentReady();
+    });
 
-    this.containerNode &&
-      this.containerNode.addEventListener(
-        "textlayerrendered",
-        this.onTextLayerRendered
-      );
+    document.addEventListener("textlayerrendered", this.onTextLayerRendered);
   }
 
   componentWillUnmount() {
     document.removeEventListener("selectionchange", this.onSelectionChange);
     document.removeEventListener("keydown", this.handleKeyDown);
-
-    this.containerNode &&
-      this.containerNode.removeEventListener(
-        "textlayerrendered",
-        this.onTextLayerRendered
-      );
+    document.removeEventListener("textlayerrendered", this.onTextLayerRendered);
   }
 
   findOrCreateHighlightLayer(page: number) {
@@ -507,7 +498,7 @@ class PdfHighlighter<T_HT: T_Highlight> extends PureComponent<
         <div
           ref={node => (this.containerNode = node)}
           className="PdfHighlighter"
-          onContextMenu={(e) => e.preventDefault()}
+          onContextMenu={e => e.preventDefault()}
         >
           <div className="pdfViewer" />
           {typeof enableAreaSelection === "function" ? (
